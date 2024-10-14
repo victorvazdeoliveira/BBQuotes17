@@ -22,7 +22,7 @@ struct ContentView: View {
                     Label("Better Call Saul", systemImage: "briefcase")
                 }
         }
-//        .preferredColorScheme(.dark)
+        .preferredColorScheme(.dark)
     }
 }
 
