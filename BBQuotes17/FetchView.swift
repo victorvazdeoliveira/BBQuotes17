@@ -64,6 +64,8 @@ struct FetchView: View {
                             EpisodeView(episode: vm.episode)
                         case .successCharacter:
                             RandomCharacterView(character: vm.character, show: show)
+                        case .successCharacterQuote:
+                            EmptyView()
                         case .failed(let error):
                             Text(error.localizedDescription)
                         }

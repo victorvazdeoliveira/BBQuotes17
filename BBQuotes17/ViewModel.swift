@@ -15,6 +15,7 @@ class ViewModel {
         case successQuote
         case successEpisode
         case successCharacter
+        case successCharacterQuote
         case failed(error: Error)
     }
     
@@ -81,6 +82,18 @@ class ViewModel {
                 
                 status = .successCharacter
             }
+        } catch {
+            status = .failed(error: error)
+        }
+    }
+    
+    func getCharacterQuoteData(_ character: Character) async {
+        status = .fetching
+        
+        do {
+            quote = try await fetcher.fetchCharacterQuote(character)
+            
+            status = .successCharacterQuote
         } catch {
             status = .failed(error: error)
         }
