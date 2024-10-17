@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct QuoteView: View {
+struct FetchView: View {
     let vm = ViewModel()
     let show: String
     
@@ -29,7 +29,7 @@ struct QuoteView: View {
                             EmptyView()
                         case .fetching:
                             ProgressView()
-                        case .success:
+                        case .successQuote:
                             Text("\"\(vm.quote.quote)\"")
                                 .minimumScaleFactor(0.5)
                                 .multilineTextAlignment(.center)
@@ -60,26 +60,47 @@ struct QuoteView: View {
                             .onTapGesture {
                                 showCharacterInfo.toggle()
                             }
+                        case .successEpisode:
+                            EpisodeView(episode: vm.episode)
                         case .failed(let error):
                             Text(error.localizedDescription)
                         }
                         
-                        Spacer()
+                        Spacer(minLength: 20)
                     }
                     
-                    Button() {
-                        Task {
-                            await vm.getData(for: show)
+                    HStack {
+                        Button() {
+                            Task {
+                                await vm.getQuoteData(for: show)
+                            }
+                        } label: {
+                            Text("Get Random Quote")
+                                .font(.title3)
+                                .foregroundStyle(.white)
+                                .padding()
+                                .background(Color("\(show.removeSpaces())Button"))
+                                .clipShape(.rect(cornerRadius: 10))
+                                .shadow(color: Color("\(show.removeSpaces())Shadow"), radius: 2)
                         }
-                    } label: {
-                        Text("Get Random Quote")
-                            .font(.title)
-                            .foregroundStyle(.white)
-                            .padding()
-                            .background(Color("\(show.removeSpaces())Button"))
-                            .clipShape(.rect(cornerRadius: 10))
-                            .shadow(color: Color("\(show.removeSpaces())Shadow"), radius: 2)
+                        
+                        Spacer()
+                        
+                        Button() {
+                            Task {
+                                await vm.getEpisode(for: show)
+                            }
+                        } label: {
+                            Text("Get Random Episode")
+                                .font(.title3)
+                                .foregroundStyle(.white)
+                                .padding()
+                                .background(Color("\(show.removeSpaces())Button"))
+                                .clipShape(.rect(cornerRadius: 10))
+                                .shadow(color: Color("\(show.removeSpaces())Shadow"), radius: 2)
+                        }
                     }
+                    .padding(.horizontal, 30)
                     
                     Spacer(minLength: 95)
                 }
@@ -95,5 +116,5 @@ struct QuoteView: View {
 }
 
 #Preview {
-    QuoteView(show: Constants.bbName)
+    FetchView(show: Constants.bbName)
 }
