@@ -14,6 +14,7 @@ class ViewModel {
         case fetching
         case successQuote
         case successEpisode
+        case successCharacter
         case failed(error: Error)
     }
     
@@ -63,6 +64,22 @@ class ViewModel {
                 episode = unwrappedEpisode
                 
                 status = .successEpisode
+            }
+        } catch {
+            status = .failed(error: error)
+        }
+    }
+    
+    func getCharacter(for show: String) async {
+        status = .fetching
+        
+        do {
+            if let unwrappedCharacter = try await fetcher.fetchRandomCharacter(from: show) {
+                character = unwrappedCharacter
+                
+                character.death = try await fetcher.fetchDeath(for: character.name)
+                
+                status = .successCharacter
             }
         } catch {
             status = .failed(error: error)

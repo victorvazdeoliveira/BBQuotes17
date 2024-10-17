@@ -93,4 +93,29 @@ struct FetchService {
         
         return episodes.randomElement()
     }
+    
+    func fetchRandomCharacter(from show: String) async throws -> Character? {
+        let fetchURL = baseURL.appending(path: "characters")
+        
+        let (data, response) = try await URLSession.shared.data(from: fetchURL)
+        
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw FetchError.badResponse
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        let characters = try decoder.decode([Character].self, from: data)
+        
+        var randomCharacter: [Character] = []
+        
+        for character in characters {
+            if character.productions.contains(show) {
+                randomCharacter.append(character)
+            }
+        }
+        
+        return randomCharacter.randomElement()
+    }
 }
