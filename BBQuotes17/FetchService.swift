@@ -13,6 +13,7 @@ struct FetchService {
     }
     
     private let baseURL = URL(string: "https://breaking-bad-api-six.vercel.app/api")!
+    private let baseSimpsonsURL = URL(string: "https://thesimpsonsquoteapi.glitch.me")!
     
     // https://breaking-bad-api-six.vercel.app/api/quotes/random?production=breaking+bad
     func fetchQuote(from show: String) async throws -> Quote {
@@ -92,5 +93,69 @@ struct FetchService {
         let episodes = try decoder.decode([Episode].self, from: data)
         
         return episodes.randomElement()
+    }
+    
+    func fetchRandomCharacter(from show: String) async throws -> Character? {
+        let fetchURL = baseURL.appending(path: "characters")
+        
+        let (data, response) = try await URLSession.shared.data(from: fetchURL)
+        
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw FetchError.badResponse
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        
+        let characters = try decoder.decode([Character].self, from: data)
+        
+        var randomCharacter: [Character] = []
+        
+        for character in characters {
+            if character.productions.contains(show) {
+                randomCharacter.append(character)
+            }
+        }
+        
+        return randomCharacter.randomElement()
+    }
+    
+    func fetchCharacterQuote(_ character: Character) async throws -> Quote {
+        // Build the fetch url
+        let quoteURL = baseURL.appending(path: "quotes/random")
+        let fetchURL = quoteURL.appending(queryItems: [URLQueryItem(name: "character", value: character.name)])
+        
+        // Fetch data
+        let (data, response) = try await URLSession.shared.data(from: fetchURL)
+        
+        // Handle response
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw FetchError.badResponse
+        }
+        
+        // Decode data
+        let quote = try JSONDecoder().decode(Quote.self, from: data)
+        
+        // Return quote
+        return quote
+    }
+    
+    func fetchSimpsonsQuote() async throws -> Quote {
+        // Build the fetch url
+        let fetchURL = baseSimpsonsURL.appending(path: "quotes")
+        
+        // Fetch data
+        let (data, response) = try await URLSession.shared.data(from: fetchURL)
+        
+        // Handle response
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw FetchError.badResponse
+        }
+        
+        // Decode data
+        let simpsonsQuote = try JSONDecoder().decode([Quote].self, from: data)
+        
+        // Return quote
+        return simpsonsQuote[0]
     }
 }

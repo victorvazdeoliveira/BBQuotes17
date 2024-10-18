@@ -10,6 +10,7 @@ import SwiftUI
 struct CharacterView: View {
     let character: Character
     let show: String
+    let vm = ViewModel()
     
     var body: some View {
         GeometryReader { geo in
@@ -42,6 +43,34 @@ struct CharacterView: View {
                             
                             Text("Portrayed By: \(character.portrayedBy)")
                                 .font(.subheadline)
+                            
+                            Divider()
+                            
+                            switch vm.status {
+                            case .successCharacterQuote:
+                                Text("\"\(vm.quote.quote)\"")
+                            default:
+                                Text("")
+                            }
+                            
+                            Button() {
+                                Task {
+                                    await vm.getCharacterQuoteData(character)
+                                }
+                            } label: {
+                                Text("Get a New Quote")
+                                    .font(.caption)
+                                    .foregroundStyle(.white)
+                                    .padding()
+                                    .background(Color("\(show.removeSpaces())Button"))
+                                    .clipShape(.rect(cornerRadius: 10))
+                                    .shadow(color: Color("\(show.removeSpaces())Shadow"), radius: 2)
+                            }
+                            .onAppear{
+                                Task {
+                                    await vm.getCharacterQuoteData(character)
+                                }
+                            }
                             
                             Divider()
                             
