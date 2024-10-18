@@ -98,4 +98,16 @@ class ViewModel {
             status = .failed(error: error)
         }
     }
+    
+    func getSimpsonsQuoteData() async {
+        status = .fetching
+        
+        do {
+            quote = try await fetcher.fetchSimpsonsQuote()
+            
+            status = .successQuote
+        } catch {
+            status = .failed(error: error)
+        }
+    }
 }

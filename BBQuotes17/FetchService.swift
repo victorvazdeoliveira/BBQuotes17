@@ -13,6 +13,7 @@ struct FetchService {
     }
     
     private let baseURL = URL(string: "https://breaking-bad-api-six.vercel.app/api")!
+    private let baseSimpsonsURL = URL(string: "https://thesimpsonsquoteapi.glitch.me")!
     
     // https://breaking-bad-api-six.vercel.app/api/quotes/random?production=breaking+bad
     func fetchQuote(from show: String) async throws -> Quote {
@@ -137,5 +138,24 @@ struct FetchService {
         
         // Return quote
         return quote
+    }
+    
+    func fetchSimpsonsQuote() async throws -> Quote {
+        // Build the fetch url
+        let fetchURL = baseSimpsonsURL.appending(path: "quotes")
+        
+        // Fetch data
+        let (data, response) = try await URLSession.shared.data(from: fetchURL)
+        
+        // Handle response
+        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
+            throw FetchError.badResponse
+        }
+        
+        // Decode data
+        let simpsonsQuote = try JSONDecoder().decode([Quote].self, from: data)
+        
+        // Return quote
+        return simpsonsQuote[0]
     }
 }

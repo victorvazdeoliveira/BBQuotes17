@@ -11,6 +11,7 @@ struct FetchView: View {
     let vm = ViewModel()
     let show: String
     
+    @State var randomQuote: Int = Int.random(in: 0..<9)
     @State var showCharacterInfo = false
     
     var body: some View {
@@ -39,27 +40,50 @@ struct FetchView: View {
                                 .clipShape(.rect(cornerRadius: 25))
                                 .padding(.horizontal)
                             
-                            ZStack (alignment: .bottom) {
-                                AsyncImage(url: vm.character.images.randomElement()) { image in
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                } placeholder: {
-                                    ProgressView()
+                            if (randomQuote != 0) {
+                                ZStack (alignment: .bottom) {
+                                    AsyncImage(url: vm.character.images.randomElement()) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: geo.size.width/1.1, height: geo.size.height/1.8)
+                                    
+                                    Text(vm.quote.character)
+                                        .foregroundStyle(.white)
+                                        .padding(10)
+                                        .frame(maxWidth: .infinity)
+                                        .background(.ultraThinMaterial)
                                 }
                                 .frame(width: geo.size.width/1.1, height: geo.size.height/1.8)
-                                
-                                Text(vm.quote.character)
-                                    .foregroundStyle(.white)
-                                    .padding(10)
-                                    .frame(maxWidth: .infinity)
-                                    .background(.ultraThinMaterial)
+                                .clipShape(.rect(cornerRadius: 50))
+                                .onTapGesture {
+                                    showCharacterInfo.toggle()
+                                }
+                            } else {
+                                ZStack (alignment: .bottom) {
+                                    AsyncImage(url: vm.quote.image) { image in
+                                        image
+                                            .resizable()
+                                            .scaledToFill()
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: geo.size.width/1.1, height: geo.size.height/1.8)
+                                    
+                                    Text(vm.quote.character)
+                                        .foregroundStyle(.white)
+                                        .padding(10)
+                                        .frame(maxWidth: .infinity)
+                                        .background(.ultraThinMaterial)
+                                        .clipShape(.rect(cornerRadius: 50))
+                                }
+                                .frame(width: geo.size.width/1.1, height: geo.size.height/1.8)
+                                .clipShape(.rect(cornerRadius: 50))
                             }
-                            .frame(width: geo.size.width/1.1, height: geo.size.height/1.8)
-                            .clipShape(.rect(cornerRadius: 50))
-                            .onTapGesture {
-                                showCharacterInfo.toggle()
-                            }
+                            
                         case .successEpisode:
                             EpisodeView(episode: vm.episode)
                         case .successCharacter:
@@ -75,8 +99,16 @@ struct FetchView: View {
                     
                     HStack {
                         Button() {
-                            Task {
-                                await vm.getQuoteData(for: show)
+                            randomQuote = Int.random(in: 0..<9)
+                            
+                            if (randomQuote != 0) {
+                                Task {
+                                    await vm.getQuoteData(for: show)
+                                }
+                            } else {
+                                Task {
+                                    await vm.getSimpsonsQuoteData()
+                                }
                             }
                         } label: {
                             Text("Get Random Quote")
@@ -126,8 +158,14 @@ struct FetchView: View {
                 }
                 .frame(width: geo.size.width, height: geo.size.height)
                 .onAppear {
-                    Task {
-                        await vm.getQuoteData(for: show)
+                    if (randomQuote != 0) {
+                        Task {
+                            await vm.getQuoteData(for: show)
+                        }
+                    } else {
+                        Task {
+                            await vm.getSimpsonsQuoteData()
+                        }
                     }
                 }
             }
