@@ -2,7 +2,7 @@
 
 Olá, leitor(a).
 
-Nesse projeto foi criado um aplicado de iOS que obtem dados, através de uma API, de personagens e suas citações das series Breaking Bad, Better Call Saul e El Camino.
+Nesse projeto foi criado um aplicativo de iOS que obtem dados, através de uma API, de personagens e suas citações das series Breaking Bad, Better Call Saul e El Camino.
 
 
 ![Exemplo 1 de Tela Inicial](https://github.com/user-attachments/assets/2f7d4e9b-de84-43d6-b827-cf1569717cde)
